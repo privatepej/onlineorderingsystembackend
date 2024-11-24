@@ -23,7 +23,6 @@ public class Users {
 	private String username;
 	private String email;
 	private String password;
-	private String confirmpassword;
 	private String address;
 	private USER_ROLE role;
 	
@@ -64,13 +63,6 @@ public class Users {
 		this.password = password;
 	}
 	
-	@Column(name = "confirmpassword", nullable = false, length = 100)
-	public String getConfirmpassword() {
-		return confirmpassword;
-	}
-	public void setConfirmpassword(String confirmpassword) {
-		this.confirmpassword = confirmpassword;
-	}
 	
 	@Column(name = "address", nullable = false, length = 255)
 	public String getAddress() {

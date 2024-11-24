@@ -20,15 +20,31 @@ public class ProductService {
 	@Transactional
     public List<ProductDTO> getAllProduct() {
         List<Product> products = productDao.selectAllProduct();
-        return products.stream().map(product -> {
-            ProductDTO dto = new ProductDTO();
-            dto.setId(product.getId());
-            dto.setPname(product.getPname());
-            dto.setPrice(product.getPrice());
-            dto.setDescription(product.getDescription());
-            dto.setCategoryid(product.getCategortyid());
-            return dto;
-        }).collect(Collectors.toList());
+        return products.stream().map(
+        		product -> mapEntityToDto(product))
+        		.collect(Collectors.toList());
     }
+	
+	
+//	private Product mapDtoToEntity(ProductDTO productDTO) {
+//        Product product = new Product();
+//        product.setId(productDTO.getId());
+//        product.setPname(productDTO.getPname());
+//        product.setPrice(productDTO.getPrice());
+//        product.setDescription(productDTO.getDescription());
+//        product.setCategortyname(productDTO.getCategortyname());
+//        return product;
+//    }
+
+    private ProductDTO mapEntityToDto(Product product) {
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(product.getId());
+        productDTO.setPname(product.getPname());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setCategortyname(product.getCategortyname());
+        return productDTO;
+    }
+
 
 }

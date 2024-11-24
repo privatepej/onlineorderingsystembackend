@@ -6,7 +6,7 @@ public class ProductDTO {
     private String pname;
     private Double price;
     private String description;
-    private Integer categoryid;
+    private String categortyname;
     
 	public Integer getId() {
 		return id;
@@ -32,12 +32,13 @@ public class ProductDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Integer getCategoryid() {
-		return categoryid;
+	public String getCategortyname() {
+		return categortyname;
 	}
-	public void setCategoryid(Integer categoryid) {
-		this.categoryid = categoryid;
+	public void setCategortyname(String categortyname) {
+		this.categortyname = categortyname;
 	}
+	
 
     
     

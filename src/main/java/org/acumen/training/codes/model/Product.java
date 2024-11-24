@@ -22,8 +22,8 @@ public class Product {
 	private String pname;
 	private Double price;
 	private String description;
-	private Integer categortyid;
-	
+	private String categortyname;
+
     private Category category;
     
     private Set<ProductImages> productImages = new HashSet<>();
@@ -65,16 +65,18 @@ public class Product {
 		this.description = description;
 	}
 	
-	@Column(name = "categoryid", nullable = false)
-	public Integer getCategortyid() {
-		return categortyid;
+	
+	@Column(name = "categoryname", nullable = false,  length = 100)
+	public String getCategortyname() {
+		return categortyname;
 	}
-	public void setCategortyid(Integer categortyid) {
-		this.categortyid = categortyid;
+	public void setCategortyname(String categortyname) {
+		this.categortyname = categortyname;
 	}
-// category
+	
+	// category
 	@ManyToOne
-    @JoinColumn(name = "categoryid", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "categoryname", referencedColumnName = "cname", insertable = false, updatable = false)
 	public Category getCategory() {
 		return category;
 	}
