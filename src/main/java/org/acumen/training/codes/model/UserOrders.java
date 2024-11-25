@@ -49,7 +49,7 @@ public class UserOrders {
 		this.userid = userid;
 	}
 	
-	@Column(name = "paymentid", nullable = false)
+	@Column(name = "paymentid")
 	public Integer getPaymentid() {
 		return paymentid;
 	}

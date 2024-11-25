@@ -41,4 +41,29 @@ public class ProductDao {
 		} 
 		return records;
 	}
+	
+	
+	public Product selectProductById(Integer id) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(Product.class, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+	
+//
+//    public Product selectProductByName(String name) {
+//        try (Session session = sessionFactory.openSession()) {
+//            CriteriaBuilder builder = session.getCriteriaBuilder();
+//            CriteriaQuery<Product> query = builder.createQuery(Product.class);
+//            Root<Product> root = query.from(Product.class);
+//            query.select(root).where(builder.equal(root.get("pname"), name));
+//            Query<Product> q = session.createQuery(query);
+//            return q.uniqueResult();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 }

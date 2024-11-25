@@ -1,6 +1,7 @@
 package org.acumen.training.codes.model;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ public class Sales {
 	private Integer orderid;
 	private Integer itemno;
 	private Integer qty;
-	private Date soldon;
+	private LocalDate soldon;
 	private String payment;
 	
     private Product product;
@@ -61,10 +62,10 @@ public class Sales {
 	}
 	
 	@Column(name = "soldon", nullable = false)
-	public Date getSoldon() {
+	public LocalDate getSoldon() {
 		return soldon;
 	}
-	public void setSoldon(Date soldon) {
+	public void setSoldon(LocalDate soldon) {
 		this.soldon = soldon;
 	}
 	

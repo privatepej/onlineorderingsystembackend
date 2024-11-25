@@ -1,6 +1,7 @@
 package org.acumen.training.codes.dao;
 
 import org.acumen.training.codes.model.Users;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

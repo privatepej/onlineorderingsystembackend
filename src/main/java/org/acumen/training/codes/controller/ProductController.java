@@ -1,8 +1,5 @@
 package org.acumen.training.codes.controller;
 
-import java.util.List;
-
-import org.acumen.training.codes.dto.ProductDTO;
 import org.acumen.training.codes.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
