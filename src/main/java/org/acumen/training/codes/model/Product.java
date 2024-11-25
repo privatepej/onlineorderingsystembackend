@@ -3,6 +3,7 @@ package org.acumen.training.codes.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +23,7 @@ public class Product {
 	private String pname;
 	private Double price;
 	private String description;
-	private String categortyname;
+	private String categoryname;
 
     private Category category;
     
@@ -67,11 +68,11 @@ public class Product {
 	
 	
 	@Column(name = "categoryname", nullable = false,  length = 100)
-	public String getCategortyname() {
-		return categortyname;
+	public String getCategoryname() {
+		return categoryname;
 	}
-	public void setCategortyname(String categortyname) {
-		this.categortyname = categortyname;
+	public void setCategoryname(String categoryname) {
+		this.categoryname = categoryname;
 	}
 	
 	// category
@@ -86,7 +87,7 @@ public class Product {
 	
 	
 // productImages
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER,  cascade = {CascadeType.MERGE, CascadeType.REMOVE} )
 	public Set<ProductImages> getProductImages() {
 		return productImages;
 	}
@@ -95,7 +96,7 @@ public class Product {
 	}
 	
 // sales
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER )
 	public Set<Sales> getSales() {
 		return sales;
 	}

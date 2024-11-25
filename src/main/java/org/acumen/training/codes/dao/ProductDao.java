@@ -5,13 +5,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.acumen.training.codes.model.Product;
+import org.acumen.training.codes.model.ProductImages;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
@@ -51,6 +54,182 @@ public class ProductDao {
             return null;
         }
     }
+	
+	public boolean insertProduct(Product product) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			sess.persist(product); 
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    
+    public boolean updateProductname(Integer id, String newProductName) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			Product product = sess.get(Product.class, id); 
+			product.setPname(newProductName);
+			sess.merge(product);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    public boolean updateProductPrice(Integer id, Double newProductPrice) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			Product product = sess.get(Product.class, id); 
+			product.setPrice(newProductPrice);
+			sess.merge(product);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    public boolean updateProductDescription(Integer id, String newProductDescription) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			Product product = sess.get(Product.class, id); 
+			product.setDescription(newProductDescription);
+			sess.merge(product);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    public boolean updateProductImage(Integer id, String newProductImage) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			ProductImages productImage = sess.get(ProductImages.class, id); 
+			productImage.setImagename(newProductImage);
+			sess.merge(productImage);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    public boolean deleteById(Integer id) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			Product product = sess.get(Product.class, id);
+			sess.remove(product);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+    
+    public boolean deleteProductByName(String productName) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<Product> delete = builder.createCriteriaDelete(Product.class);
+            Root<Product> root = delete.from(Product.class);
+            delete.where(builder.equal(root.get("pname"), productName));
+            int deletedCount = session.createMutationQuery(delete).executeUpdate();
+            transaction.commit();
+            return deletedCount > 0;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    
 	
 //
 //    public Product selectProductByName(String name) {

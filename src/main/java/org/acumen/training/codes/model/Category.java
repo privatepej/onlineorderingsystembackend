@@ -3,6 +3,7 @@ package org.acumen.training.codes.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +42,7 @@ public class Category {
 	}
 	
 // product
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER,  cascade = {CascadeType.MERGE, CascadeType.REMOVE})
 	public Set<Product> getProduct() {
 		return product;
 	}

@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMINISTRATOR")
                 .requestMatchers("/user/register").permitAll()
                 .requestMatchers("/user/login").permitAll()
+                .requestMatchers("/product/**").permitAll()
                 .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
             )
