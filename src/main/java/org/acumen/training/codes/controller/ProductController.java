@@ -1,23 +1,35 @@
 package org.acumen.training.codes.controller;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
-import org.acumen.training.codes.dto.CategoryDTO;
 import org.acumen.training.codes.dto.ProductDTO;
-import org.acumen.training.codes.dto.UserDTO;
+import org.acumen.training.codes.dto.ProductJoinImageDTO;
+import org.acumen.training.codes.model.Product;
+import org.acumen.training.codes.model.ProductImages;
+import org.acumen.training.codes.services.FileService;
 import org.acumen.training.codes.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @RestController
 @RequestMapping("/product")
@@ -26,8 +38,11 @@ public class ProductController {
 	@Autowired
     private ProductService productService;
 	
+	@Autowired
+	private FileService fileService;
+	
 	@GetMapping("/list")
-    public ResponseEntity<List<ProductDTO>> getAllCategories() {
+    public ResponseEntity<List<ProductDTO>> getAllProduct() {
         List<ProductDTO> products = productService.getAllProduct();
         if (products != null && !products.isEmpty()) {
             return new ResponseEntity<>(products, HttpStatus.OK);
@@ -35,7 +50,18 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
+	
+	@GetMapping("/listWithImage")
+    public ResponseEntity<List<ProductJoinImageDTO>> getAllProductWithImage() {
+        List<ProductJoinImageDTO> productswithimg = productService.getAllProductWithImage();
+        if (productswithimg != null && !productswithimg.isEmpty()) {
+            return new ResponseEntity<>(productswithimg, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
 
+	//addjson
 	@PostMapping("/add")
 	public ResponseEntity<String> addProduct(@RequestBody ProductDTO productDTO) {
 	    try {
@@ -51,6 +77,59 @@ public class ProductController {
 	        return new ResponseEntity<>("An unexpected error occurred while adding the product.", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
+	
+	//addform
+	@PostMapping("/addForm")
+	public ResponseEntity<?> addProductForm(
+			String pname,
+	        Double price,
+	        String description,
+	        String categoryname,
+	        @RequestParam(value = "imagename", required = false) MultipartFile image) {
+		
+	    try {
+	        ProductJoinImageDTO productJoinImageDTO = new ProductJoinImageDTO();
+	        productJoinImageDTO.setPname(pname);
+	        productJoinImageDTO.setPrice(price);
+	        productJoinImageDTO.setDescription(description);
+	        productJoinImageDTO.setCategoryname(categoryname);
+
+	        boolean isInserted = productService.insertProductForm(productJoinImageDTO, image);
+
+	        if (isInserted) {
+	            ProductJoinImageDTO savedProduct = productService.getProductByName(pname);
+
+	            return ResponseEntity.ok(savedProduct);
+	        } else {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	        }
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+	}
+
+	
+	@GetMapping("/images/{filename}")
+	public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
+	    try {
+	    	Path filePath = Paths.get("src/main/resources/img").resolve(filename).normalize();
+	        Resource resource = new UrlResource(filePath.toUri());
+
+	        if (!resource.exists()) {
+	            return ResponseEntity.notFound().build();
+	        }
+
+	        return ResponseEntity.ok()
+	        	    .contentType(MediaType.parseMediaType(Files.probeContentType(filePath)))
+	        	    .body(resource);
+	    } catch (MalformedURLException e) {
+	        return ResponseEntity.badRequest().build();
+	    }
+	}
+
+
 	
 	 @PutMapping(path = "/updates")
 	    public ResponseEntity<String> updateUser(@RequestBody ProductDTO productDTO) {

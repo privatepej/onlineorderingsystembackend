@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.acumen.training.codes.model.Product;
 import org.acumen.training.codes.model.ProductImages;
-import org.acumen.training.codes.model.Users;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -14,9 +13,12 @@ import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 
 @Repository
@@ -39,6 +41,27 @@ public class ProductDao {
 			Query<Product> query = sess.createQuery(sql);
 			records = query.getResultList();
 			
+			return Collections.unmodifiableList(records);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return records;
+	}
+	
+	//selectall join with image table
+	public List<Tuple> JoinTableProductImage(){
+		List<Tuple> records = new ArrayList<>();
+		try (Session sess = sessionFactory.openSession();) {
+			CriteriaBuilder builder = sess.getCriteriaBuilder();
+			CriteriaQuery<Tuple> sql = builder.createQuery(Tuple.class);
+			Root<Product> from = sql.from(Product.class); 
+			Join<Product, ProductImages> join = from.join("productImages", JoinType.LEFT);
+			sql.multiselect(
+		            from,             // Select Product entity
+		            join              // Select ProductImages entity
+		        );
+			Query<Tuple> query = sess.createQuery(sql);
+			records = query.getResultList();
 			return Collections.unmodifiableList(records);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,6 +103,18 @@ public class ProductDao {
 		return false;
 	}
 	
+	public void saveProductImage(ProductImages productImage) {
+	    try (Session session = sessionFactory.openSession()) {
+	        Transaction transaction = session.beginTransaction();
+	        session.persist(productImage);
+	        transaction.commit();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	
+
 	 public Product findByProductName(String pname) {
 		 Product product = new Product();
 	        try (Session session = sessionFactory.openSession()) {
@@ -266,6 +301,22 @@ public class ProductDao {
         }
         return false;
     }
+    
+    public boolean doesImageExist(String imageName) {
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Long> query = builder.createQuery(Long.class);
+            Root<ProductImages> root = query.from(ProductImages.class);
+            query.select(builder.count(root))
+                 .where(builder.equal(root.get("imagename"), imageName));
+            Long count = session.createQuery(query).getSingleResult();
+            return count > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     
     public boolean updateProduct(Product product) {
@@ -287,5 +338,23 @@ public class ProductDao {
             return false;
         }
     }
+    
+    
+    public ProductImages findImageByProductName(String pname) {
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<ProductImages> query = builder.createQuery(ProductImages.class);
+            Root<ProductImages> root = query.from(ProductImages.class);
+
+            // Add condition for pname
+            query.select(root).where(builder.equal(root.get("pname"), pname));
+
+            return session.createQuery(query).uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // Return null if no image found or an error occurs
+        }
+    }
+
     
 }
