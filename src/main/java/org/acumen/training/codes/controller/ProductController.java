@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.acumen.training.codes.dto.CategoryDTO;
 import org.acumen.training.codes.dto.ProductDTO;
+import org.acumen.training.codes.dto.UserDTO;
 import org.acumen.training.codes.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,14 +37,30 @@ public class ProductController {
     }
 
 	@PostMapping("/add")
-    public ResponseEntity<String> addProduct(@RequestBody ProductDTO productDTO) {
-        boolean isInserted = productService.insertProduct(productDTO);
-        if (isInserted) {
-            return new ResponseEntity<>("Product added successfully", HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("Failed to add Product", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+	public ResponseEntity<String> addProduct(@RequestBody ProductDTO productDTO) {
+	    try {
+	        boolean isInserted = productService.insertProduct(productDTO);
+	        if (isInserted) {
+	            return new ResponseEntity<>("Product added successfully", HttpStatus.CREATED);
+	        } else {
+	            return new ResponseEntity<>("Failed to add Product", HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    } catch (IllegalArgumentException e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("An unexpected error occurred while adding the product.", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	
+	 @PutMapping(path = "/updates")
+	    public ResponseEntity<String> updateUser(@RequestBody ProductDTO productDTO) {
+	        boolean isUpdated = productService.updateProduct(productDTO);
+	        if (isUpdated) {
+	            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+	        } else {
+	            return new ResponseEntity<>("User update failed", HttpStatus.BAD_REQUEST);
+	        }
+	    }
 
     @PutMapping("/update")
     public ResponseEntity<String> updateProductName(@RequestParam Integer id, @RequestParam String newName) {

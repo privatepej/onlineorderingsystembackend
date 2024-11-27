@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import org.acumen.training.codes.dao.ProductDao;
 import org.acumen.training.codes.dto.CategoryDTO;
 import org.acumen.training.codes.dto.ProductDTO;
+import org.acumen.training.codes.dto.UserDTO;
 import org.acumen.training.codes.model.Category;
 import org.acumen.training.codes.model.Product;
+import org.acumen.training.codes.model.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,9 @@ public class ProductService {
     }
 	
 	public boolean insertProduct(ProductDTO productDTO) {
+		if(productDao.doesProductExist(productDTO.getPname())) {
+	        throw new IllegalArgumentException("Product with the same name already exists");
+		}
 		Product product = mapDtoToEntity(productDTO);
         return productDao.insertProduct(product);
     }
@@ -55,6 +60,32 @@ public class ProductService {
     public boolean updateProductImage(Integer id, String productImage) {
         return productDao.updateProductImage(id,productImage);
     }
+    
+    
+    
+    
+    public boolean updateProduct(ProductDTO productDTO) {
+        Product existingProduct = productDao.selectProductById(productDTO.getId());
+        if (existingProduct == null) {
+            return false;
+        }
+
+        if (productDTO.getPname() != null) {
+        	existingProduct.setPname(productDTO.getPname());
+        }
+        if (productDTO.getPrice() != null) {
+        	existingProduct.setPrice(productDTO.getPrice());
+        }
+        if (productDTO.getDescription() != null) {
+        	existingProduct.setDescription(productDTO.getDescription());
+        }
+        if (productDTO.getCategoryname() != null) {
+        	existingProduct.setCategoryname(productDTO.getCategoryname());
+        }
+        
+        return productDao.updateProduct(existingProduct);
+    }
+    
   
    
 	

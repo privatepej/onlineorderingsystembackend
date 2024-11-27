@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.acumen.training.codes.model.Product;
 import org.acumen.training.codes.model.ProductImages;
+import org.acumen.training.codes.model.Users;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -77,6 +78,24 @@ public class ProductDao {
 			}
 		}
 		return false;
+	}
+	
+	 public Product findByProductName(String pname) {
+		 Product product = new Product();
+	        try (Session session = sessionFactory.openSession()) {
+	            CriteriaBuilder builder = session.getCriteriaBuilder();
+	            CriteriaQuery<Product> sql = builder.createQuery(Product.class);
+	            Root<Product> root = sql.from(Product.class);
+	            sql.select(root).where(builder.equal(root.get("pname"), pname));
+	            Query<Product> query = session.createQuery(sql);
+	            product = query.uniqueResult();
+	            return product;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        
+	        
+	        }
 	}
     
     
@@ -230,19 +249,43 @@ public class ProductDao {
     }
     
     
-	
-//
-//    public Product selectProductByName(String name) {
-//        try (Session session = sessionFactory.openSession()) {
-//            CriteriaBuilder builder = session.getCriteriaBuilder();
-//            CriteriaQuery<Product> query = builder.createQuery(Product.class);
-//            Root<Product> root = query.from(Product.class);
-//            query.select(root).where(builder.equal(root.get("pname"), name));
-//            Query<Product> q = session.createQuery(query);
-//            return q.uniqueResult();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
+    public boolean doesProductExist(String pname) {
+        Session sess = sessionFactory.openSession();
+        try {
+            CriteriaBuilder builder = sess.getCriteriaBuilder();
+            CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+            Root<Product> root = criteriaQuery.from(Product.class);
+            criteriaQuery.select(builder.count(root));
+            criteriaQuery.where(builder.equal(root.get("pname"), pname));
+            Long count = sess.createQuery(criteriaQuery).getSingleResult();
+            return count > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sess.close();
+        }
+        return false;
+    }
+
+    
+    public boolean updateProduct(Product product) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            try {
+                session.merge(product);
+                tx.commit();
+                return true;
+            } catch (Exception e) {
+                if (tx != null) {
+                    tx.rollback();
+                }
+                e.printStackTrace();
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }
