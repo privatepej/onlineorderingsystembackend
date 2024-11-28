@@ -1,7 +1,6 @@
 package org.acumen.training.codes.dao;
 
 import org.acumen.training.codes.model.Users;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -25,24 +24,30 @@ public class UserDao {
     }
     
     public boolean createUser(Users users) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            try {
-                session.persist(users);
-                tx.commit();
-                return true;
-            } catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-                e.printStackTrace();
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    	Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			sess.persist(users); 
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
     }
+    
+    
     
     
     
@@ -66,23 +71,27 @@ public class UserDao {
 
     
     public boolean updateUser(Users users) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            try {
-                session.merge(users);
-                tx.commit();
-                return true;
-            } catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-                e.printStackTrace();
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    	Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			sess.merge(users);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
     }
 
     

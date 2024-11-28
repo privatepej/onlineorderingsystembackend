@@ -48,7 +48,6 @@ public class ProductDao {
 		return records;
 	}
 	
-	//selectall join with image table
 	public List<Tuple> JoinTableProductImage(){
 		List<Tuple> records = new ArrayList<>();
 		try (Session sess = sessionFactory.openSession();) {
@@ -57,8 +56,8 @@ public class ProductDao {
 			Root<Product> from = sql.from(Product.class); 
 			Join<Product, ProductImages> join = from.join("productImages", JoinType.LEFT);
 			sql.multiselect(
-		            from,             // Select Product entity
-		            join              // Select ProductImages entity
+		            from,            
+		            join            
 		        );
 			Query<Tuple> query = sess.createQuery(sql);
 			records = query.getResultList();
@@ -103,14 +102,28 @@ public class ProductDao {
 		return false;
 	}
 	
-	public void saveProductImage(ProductImages productImage) {
-	    try (Session session = sessionFactory.openSession()) {
-	        Transaction transaction = session.beginTransaction();
-	        session.persist(productImage);
-	        transaction.commit();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+	public boolean saveProductImage(ProductImages productImage) {
+		Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			sess.persist(productImage); 
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
 	}
 	
 	
@@ -128,10 +141,60 @@ public class ProductDao {
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            return null;
-	        
-	        
 	        }
 	}
+	 
+	 
+	  public boolean updateProductImage(ProductImages productImage) {
+		  Session sess = sessionFactory.openSession();
+			Transaction tx = sess.beginTransaction();
+			try {
+				sess.merge(productImage);
+				tx.commit();
+				return true;
+			} catch (Exception e) {
+				try {
+					tx.rollback();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} finally {
+				try {
+					sess.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return false;
+	    }
+
+
+
+	    
+	    public boolean updateProduct(Product product) {
+	        Session sess = sessionFactory.openSession();
+			Transaction tx = sess.beginTransaction();
+			try {
+				sess.merge(product);
+				tx.commit();
+				return true;
+			} catch (Exception e) {
+				try {
+					tx.rollback();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} finally {
+				try {
+					sess.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return false;
+	    }
     
     
     public boolean updateProductname(Integer id, String newProductName) {
@@ -285,21 +348,18 @@ public class ProductDao {
     
     
     public boolean doesProductExist(String pname) {
-        Session sess = sessionFactory.openSession();
-        try {
-            CriteriaBuilder builder = sess.getCriteriaBuilder();
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
             Root<Product> root = criteriaQuery.from(Product.class);
             criteriaQuery.select(builder.count(root));
             criteriaQuery.where(builder.equal(root.get("pname"), pname));
-            Long count = sess.createQuery(criteriaQuery).getSingleResult();
+            Long count = session.createQuery(criteriaQuery).getSingleResult();
             return count > 0;
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            sess.close();
+            return false;
         }
-        return false;
     }
     
     public boolean doesImageExist(String imageName) {
@@ -317,39 +377,6 @@ public class ProductDao {
         }
     }
     
-    public void updateProductImage(ProductImages productImage) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.merge(productImage); // Use update instead of persist to modify the existing record
-            transaction.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to update product image in the database.");
-        }
-    }
-
-
-
-    
-    public boolean updateProduct(Product product) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            try {
-                session.merge(product);
-                tx.commit();
-                return true;
-            } catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-                e.printStackTrace();
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
     
     
     public ProductImages findImageByProductName(String pname) {
@@ -357,14 +384,11 @@ public class ProductDao {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<ProductImages> query = builder.createQuery(ProductImages.class);
             Root<ProductImages> root = query.from(ProductImages.class);
-
-            // Add condition for pname
             query.select(root).where(builder.equal(root.get("pname"), pname));
-
             return session.createQuery(query).uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
-            return null; // Return null if no image found or an error occurs
+            return null; 
         }
     }
 

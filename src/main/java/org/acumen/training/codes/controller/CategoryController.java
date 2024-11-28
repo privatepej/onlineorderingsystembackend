@@ -3,7 +3,6 @@ package org.acumen.training.codes.controller;
 import java.util.List;
 
 import org.acumen.training.codes.dto.CategoryDTO;
-import org.acumen.training.codes.model.Category;
 import org.acumen.training.codes.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,6 @@ public class CategoryController {
         }
     }
 
-    // Endpoint to update a category name by ID
     @PutMapping("/update")
     public ResponseEntity<String> updateCategoryName(@RequestParam Integer id, @RequestParam String newName) {
         boolean isUpdated = categoryService.updateCategoryName(id, newName);
@@ -45,7 +43,6 @@ public class CategoryController {
         }
     }
     
- // Endpoint to delete a category by name
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteCategoryByName(@RequestParam String categoryName) {
         boolean isDeleted = categoryService.deleteCategoryByName(categoryName);
@@ -67,8 +64,6 @@ public class CategoryController {
     }
     
     
-    
-
     @GetMapping("/list")
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         List<CategoryDTO> categories = categoryService.getAllCategories();

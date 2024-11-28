@@ -1,6 +1,5 @@
 package org.acumen.training.codes.model;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;

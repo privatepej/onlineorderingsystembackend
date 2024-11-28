@@ -3,9 +3,7 @@ package org.acumen.training.codes.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.acumen.training.codes.dto.CategoryDTO;
 import org.acumen.training.codes.model.Category;
-import org.acumen.training.codes.model.Product;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -124,23 +122,19 @@ public class CategoryDao {
     public boolean doesCategoryExist(String cname) {
         System.out.println("Checking category existence for: " + cname);
 
-        Session sess = sessionFactory.openSession();
-        try {
-            CriteriaBuilder builder = sess.getCriteriaBuilder();
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
             Root<Category> root = criteriaQuery.from(Category.class);
             criteriaQuery.select(builder.count(root));
             criteriaQuery.where(builder.equal(root.get("cname"), cname));
-            Long count = sess.createQuery(criteriaQuery).getSingleResult();
+            Long count = session.createQuery(criteriaQuery).getSingleResult();
             System.out.println("Category count for " + cname + ": " + count);
-
             return count > 0;
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            sess.close();
+            return false;
         }
-        return false;
     }
     
    

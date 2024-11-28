@@ -1,22 +1,13 @@
 package org.acumen.training.codes.services;
 
-import org.acumen.training.codes.dao.CategoryDao;
-import org.acumen.training.codes.model.Category;
-import org.acumen.training.codes.model.Product;
-import org.acumen.training.codes.model.Users;
-import org.hibernate.Session;
-import org.acumen.training.codes.dto.CategoryDTO;
-import org.acumen.training.codes.dto.ProductDTO;
-import org.acumen.training.codes.dto.UserDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.acumen.training.codes.dao.CategoryDao;
+import org.acumen.training.codes.dto.CategoryDTO;
+import org.acumen.training.codes.model.Category;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryService {

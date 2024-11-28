@@ -43,7 +43,6 @@ public class ProductService {
 	public boolean insertProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
 
 		
-	    // Validate product name
 	    if (productDao.doesProductExist(productJoinImageDTO.getPname())) {
 	        throw new IllegalArgumentException("Product with the same name already exists");
 	    }
@@ -52,7 +51,6 @@ public class ProductService {
 	        throw new IllegalArgumentException("Image name already exists: " + image.getOriginalFilename());
 	    }
 
-	    // Insert product into the database
 	    Product product = new Product();
 	    product.setPname(productJoinImageDTO.getPname());
 	    product.setPrice(productJoinImageDTO.getPrice());
@@ -135,44 +133,11 @@ public class ProductService {
         return productDao.updateProductImage(id,productImage);
     }
     
-    
-    
-    
-    
-    
-//    public boolean updateProduct(ProductDTO productDTO) {
-//        Product existingProduct = productDao.selectProductById(productDTO.getId());
-//        if (existingProduct == null) {
-//            return false;
-//        }
-//
-//        if (productDTO.getPname() != null) {
-//        	existingProduct.setPname(productDTO.getPname());
-//        }
-//        if (productDTO.getPrice() != null) {
-//        	existingProduct.setPrice(productDTO.getPrice());
-//        }
-//        if (productDTO.getDescription() != null) {
-//        	existingProduct.setDescription(productDTO.getDescription());
-//        }
-//        if (productDTO.getCategoryname() != null) {
-//        	existingProduct.setCategoryname(productDTO.getCategoryname());
-//        }
-//        
-//        return productDao.updateProduct(existingProduct);
-//    }
+   
     
     public boolean updateProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
         Product existingProduct = productDao.selectProductById(productJoinImageDTO.getId());
-//        if (existingProduct == null) {
-//            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
-//        }
-        
-//        if (productDao.doesProductExist(productJoinImageDTO.getPname())) {
-//	        throw new IllegalArgumentException("Product with the same name already exists");
-//	    }
-//        
-     // Check if the new product name already exists (but not for the same product)
+
         if (productJoinImageDTO.getPname() != null &&
             !existingProduct.getPname().equals(productJoinImageDTO.getPname()) &&
             productDao.doesProductExist(productJoinImageDTO.getPname())) {
@@ -184,9 +149,6 @@ public class ProductService {
 	        throw new IllegalArgumentException("Image name already exists: " + image.getOriginalFilename());
 	    }
         
-        
-
-        // Update fields
         if (productJoinImageDTO.getPname() != null) {
             existingProduct.setPname(productJoinImageDTO.getPname());
         }
@@ -202,27 +164,20 @@ public class ProductService {
 
         boolean isProductUpdated = productDao.updateProduct(existingProduct);
 
-        // Handle image update if provided
         if (isProductUpdated && image != null && !image.isEmpty()) {
             try {
-                // Retrieve the associated ProductImages entity
                 ProductImages productImage = productDao.findImageByProductName(existingProduct.getPname());
                 String currentImageName = productImage != null ? productImage.getImagename() : "default.png";
 
-                // Delete the old image if it's not default.png
                 if (!"default.png".equals(currentImageName)) {
                     fileService.deleteImage("src/main/resources/img/" + currentImageName);
                 }
 
-                // Save the new image
                 String imageName = fileService.saveImage(image);
                 if (productImage != null) {
-                    // Update the existing ProductImages entity
                     productImage.setImagename(imageName);
-                    productDao.updateProductImage(productImage); // Make sure this method updates the image properly
-//                  productDao.saveProductImage(productImage);
+                    productDao.updateProductImage(productImage); 
                 } else {
-                    // Create a new ProductImages entity
                     ProductImages newProductImage = new ProductImages();
                     newProductImage.setPname(existingProduct.getPname());
                     newProductImage.setImagename(imageName);
@@ -240,79 +195,14 @@ public class ProductService {
         return isProductUpdated;
     }
     
-//    public boolean updateProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
-//        Product existingProduct = productDao.selectProductById(productJoinImageDTO.getId());
-//        if (existingProduct == null) {
-//            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
-//        }
-//
-//        // Update fields
-//        if (productJoinImageDTO.getPname() != null) {
-//            existingProduct.setPname(productJoinImageDTO.getPname());
-//        }
-//        if (productJoinImageDTO.getPrice() != null) {
-//            existingProduct.setPrice(productJoinImageDTO.getPrice());
-//        }
-//        if (productJoinImageDTO.getDescription() != null) {
-//            existingProduct.setDescription(productJoinImageDTO.getDescription());
-//        }
-//        if (productJoinImageDTO.getCategoryname() != null) {
-//            existingProduct.setCategoryname(productJoinImageDTO.getCategoryname());
-//        }
-//
-//        boolean isProductUpdated = productDao.updateProduct(existingProduct);
-//
-//        // Handle image update if provided
-//        if (isProductUpdated && image != null && !image.isEmpty()) {
-//            try {
-//                // Delete the old image if it's not default.png
-//                ProductImages productImage = productDao.findImageByProductName(existingProduct.getPname());
-//                String currentImageName = productImage != null ? productImage.getImagename() : "default.png";
-//                
-//                if (!"default.png".equals(currentImageName)) {
-//                    fileService.deleteImage("src/main/resources/img/" + currentImageName);
-//                }
-//
-//                // Save the new image
-//                String imageName = fileService.saveImage(image);
-//                if (productImage != null) {
-//                    productImage.setImagename(imageName);
-//                    productDao.saveProductImage(productImage);
-//                } else {
-//                    ProductImages newProductImage = new ProductImages();
-//                    newProductImage.setPname(existingProduct.getPname());
-//                    newProductImage.setImagename(imageName);
-//                    productDao.saveProductImage(newProductImage);
-//                }
-//
-//                // Update the imagename in the DTO for response
-//                productJoinImageDTO.setImagename(imageName);
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                return false;
-//            }
-//        } else if (productDao.findImageByProductName(existingProduct.getPname()) != null) {
-//            ProductImages existingProductImage = productDao.findImageByProductName(existingProduct.getPname());
-//            productJoinImageDTO.setImagename(existingProductImage.getImagename());
-//        } else {
-//            productJoinImageDTO.setImagename("default.png");
-//        }
-//
-//        return isProductUpdated;
-//    }
 
-
-
-    
-    
     public List<ProductJoinImageDTO> getAllProductWithImage() {
         List<Tuple> productTuples = productDao.JoinTableProductImage();
 
         return productTuples.stream()
             .map(tuple -> {
-                Product product = tuple.get(0, Product.class); // Get Product entity
-                ProductImages productImages = tuple.get(1, ProductImages.class); // Get ProductImages entity
+                Product product = tuple.get(0, Product.class);
+                ProductImages productImages = tuple.get(1, ProductImages.class);
                 return mapEntityToDtoImage(product, productImages);
             })
             .collect(Collectors.toList());
@@ -325,7 +215,7 @@ public class ProductService {
         productJoinImageDTO.setPrice(product.getPrice());
         productJoinImageDTO.setDescription(product.getDescription());
         productJoinImageDTO.setCategoryname(product.getCategoryname());
-        productJoinImageDTO.setImagename(productImages != null ? productImages.getImagename() : "default.png"); // Handle null case
+        productJoinImageDTO.setImagename(productImages != null ? productImages.getImagename() : "default.png"); 
         return productJoinImageDTO;
     }
    

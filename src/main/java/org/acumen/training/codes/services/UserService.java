@@ -68,13 +68,6 @@ public class UserService {
         return userDao.updateUser(existingUser);
     }
     
-//    public boolean loginUser(String email, String password) {
-//        Users user = userDao.findByEmail(email);
-//        if (user != null && user.getPassword().equals(password)) {
-//            return true;
-//        }
-//        return false;
-//    }
 
 
     private Users mapDtoToEntity(UserDTO userDTO) {

@@ -130,27 +130,16 @@ public class ProductController {
 
 
 	
-//	 @PutMapping(path = "/updates")
-//	    public ResponseEntity<String> updateUser(@RequestBody ProductDTO productDTO) {
-//	        boolean isUpdated = productService.updateProduct(productDTO);
-//	        if (isUpdated) {
-//	            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
-//	        } else {
-//	            return new ResponseEntity<>("User update failed", HttpStatus.BAD_REQUEST);
-//	        }
-//	    }
-	
 	@PutMapping("/updates")
 	public ResponseEntity<?> updateProduct(
-	        @RequestParam("id") Integer id,
-	        @RequestParam("pname") String pname,
-	        @RequestParam("price") Double price,
-	        @RequestParam("description") String description,
-	        @RequestParam("categoryname") String categoryname,
+	        Integer id,
+	        String pname,
+	        Double price,
+	        String description,
+	        String categoryname,
 	        @RequestParam(value = "imagename", required = false) MultipartFile image) {
 
 	    try {
-	        // DTO mapping
 	        ProductJoinImageDTO productJoinImageDTO = new ProductJoinImageDTO();
 	        productJoinImageDTO.setId(id);
 	        productJoinImageDTO.setPname(pname);
