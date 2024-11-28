@@ -9,9 +9,6 @@ import java.util.List;
 
 import org.acumen.training.codes.dto.ProductDTO;
 import org.acumen.training.codes.dto.ProductJoinImageDTO;
-import org.acumen.training.codes.model.Product;
-import org.acumen.training.codes.model.ProductImages;
-import org.acumen.training.codes.services.FileService;
 import org.acumen.training.codes.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -37,9 +34,6 @@ public class ProductController {
 	
 	@Autowired
     private ProductService productService;
-	
-	@Autowired
-	private FileService fileService;
 	
 	@GetMapping("/list")
     public ResponseEntity<List<ProductDTO>> getAllProduct() {
@@ -131,15 +125,51 @@ public class ProductController {
 
 
 	
-	 @PutMapping(path = "/updates")
-	    public ResponseEntity<String> updateUser(@RequestBody ProductDTO productDTO) {
-	        boolean isUpdated = productService.updateProduct(productDTO);
+//	 @PutMapping(path = "/updates")
+//	    public ResponseEntity<String> updateUser(@RequestBody ProductDTO productDTO) {
+//	        boolean isUpdated = productService.updateProduct(productDTO);
+//	        if (isUpdated) {
+//	            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+//	        } else {
+//	            return new ResponseEntity<>("User update failed", HttpStatus.BAD_REQUEST);
+//	        }
+//	    }
+	
+	@PutMapping("/updates")
+	public ResponseEntity<ProductJoinImageDTO> updateProduct(
+	        @RequestParam("id") Integer id,
+	        @RequestParam("pname") String pname,
+	        @RequestParam("price") Double price,
+	        @RequestParam("description") String description,
+	        @RequestParam("categoryname") String categoryname,
+	        @RequestParam(value = "imagename", required = false) MultipartFile image) {
+
+	    try {
+	        // DTO mapping
+	        ProductJoinImageDTO productJoinImageDTO = new ProductJoinImageDTO();
+	        productJoinImageDTO.setId(id);
+	        productJoinImageDTO.setPname(pname);
+	        productJoinImageDTO.setPrice(price);
+	        productJoinImageDTO.setDescription(description);
+	        productJoinImageDTO.setCategoryname(categoryname);
+
+	        boolean isUpdated = productService.updateProductForm(productJoinImageDTO, image);
+
 	        if (isUpdated) {
-	            return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
+	            return ResponseEntity.ok(productJoinImageDTO); // Return updated DTO
 	        } else {
-	            return new ResponseEntity<>("User update failed", HttpStatus.BAD_REQUEST);
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	        }
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	    }
+	}
+
+
+
 
     @PutMapping("/update")
     public ResponseEntity<String> updateProductName(@RequestParam Integer id, @RequestParam String newName) {

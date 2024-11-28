@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.acumen.training.codes.dao.CategoryDao;
 import org.acumen.training.codes.dao.ProductDao;
 import org.acumen.training.codes.dto.ProductDTO;
 import org.acumen.training.codes.dto.ProductJoinImageDTO;
@@ -21,10 +20,6 @@ public class ProductService {
 
 	@Autowired
     private ProductDao productDao;
-	
-	
-	@Autowired
-    private CategoryDao categoryDao;
 	
 	@Autowired
 	private FileService fileService;
@@ -106,7 +101,6 @@ public class ProductService {
 
 
 
-
     public boolean updateProductName(Integer id, String newProductName) {
         return productDao.updateProductname(id, newProductName);
     }
@@ -146,28 +140,152 @@ public class ProductService {
     
     
     
-    public boolean updateProduct(ProductDTO productDTO) {
-        Product existingProduct = productDao.selectProductById(productDTO.getId());
+//    public boolean updateProduct(ProductDTO productDTO) {
+//        Product existingProduct = productDao.selectProductById(productDTO.getId());
+//        if (existingProduct == null) {
+//            return false;
+//        }
+//
+//        if (productDTO.getPname() != null) {
+//        	existingProduct.setPname(productDTO.getPname());
+//        }
+//        if (productDTO.getPrice() != null) {
+//        	existingProduct.setPrice(productDTO.getPrice());
+//        }
+//        if (productDTO.getDescription() != null) {
+//        	existingProduct.setDescription(productDTO.getDescription());
+//        }
+//        if (productDTO.getCategoryname() != null) {
+//        	existingProduct.setCategoryname(productDTO.getCategoryname());
+//        }
+//        
+//        return productDao.updateProduct(existingProduct);
+//    }
+    
+    public boolean updateProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
+        Product existingProduct = productDao.selectProductById(productJoinImageDTO.getId());
         if (existingProduct == null) {
-            return false;
+            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
         }
 
-        if (productDTO.getPname() != null) {
-        	existingProduct.setPname(productDTO.getPname());
+        // Update fields
+        if (productJoinImageDTO.getPname() != null) {
+            existingProduct.setPname(productJoinImageDTO.getPname());
         }
-        if (productDTO.getPrice() != null) {
-        	existingProduct.setPrice(productDTO.getPrice());
+        if (productJoinImageDTO.getPrice() != null) {
+            existingProduct.setPrice(productJoinImageDTO.getPrice());
         }
-        if (productDTO.getDescription() != null) {
-        	existingProduct.setDescription(productDTO.getDescription());
+        if (productJoinImageDTO.getDescription() != null) {
+            existingProduct.setDescription(productJoinImageDTO.getDescription());
         }
-        if (productDTO.getCategoryname() != null) {
-        	existingProduct.setCategoryname(productDTO.getCategoryname());
+        if (productJoinImageDTO.getCategoryname() != null) {
+            existingProduct.setCategoryname(productJoinImageDTO.getCategoryname());
         }
-        
-        return productDao.updateProduct(existingProduct);
+
+        boolean isProductUpdated = productDao.updateProduct(existingProduct);
+
+        // Handle image update if provided
+        if (isProductUpdated && image != null && !image.isEmpty()) {
+            try {
+                // Retrieve the associated ProductImages entity
+                ProductImages productImage = productDao.findImageByProductName(existingProduct.getPname());
+                String currentImageName = productImage != null ? productImage.getImagename() : "default.png";
+
+                // Delete the old image if it's not default.png
+                if (!"default.png".equals(currentImageName)) {
+                    fileService.deleteImage("src/main/resources/img/" + currentImageName);
+                }
+
+                // Save the new image
+                String imageName = fileService.saveImage(image);
+                if (productImage != null) {
+                    // Update the existing ProductImages entity
+                    productImage.setImagename(imageName);
+                    productDao.updateProductImage(productImage); // Make sure this method updates the image properly
+//                  productDao.saveProductImage(productImage);
+                } else {
+                    // Create a new ProductImages entity
+                    ProductImages newProductImage = new ProductImages();
+                    newProductImage.setPname(existingProduct.getPname());
+                    newProductImage.setImagename(imageName);
+                    productDao.saveProductImage(newProductImage);
+                }
+                
+                productJoinImageDTO.setImagename(imageName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        return isProductUpdated;
     }
     
+//    public boolean updateProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
+//        Product existingProduct = productDao.selectProductById(productJoinImageDTO.getId());
+//        if (existingProduct == null) {
+//            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
+//        }
+//
+//        // Update fields
+//        if (productJoinImageDTO.getPname() != null) {
+//            existingProduct.setPname(productJoinImageDTO.getPname());
+//        }
+//        if (productJoinImageDTO.getPrice() != null) {
+//            existingProduct.setPrice(productJoinImageDTO.getPrice());
+//        }
+//        if (productJoinImageDTO.getDescription() != null) {
+//            existingProduct.setDescription(productJoinImageDTO.getDescription());
+//        }
+//        if (productJoinImageDTO.getCategoryname() != null) {
+//            existingProduct.setCategoryname(productJoinImageDTO.getCategoryname());
+//        }
+//
+//        boolean isProductUpdated = productDao.updateProduct(existingProduct);
+//
+//        // Handle image update if provided
+//        if (isProductUpdated && image != null && !image.isEmpty()) {
+//            try {
+//                // Delete the old image if it's not default.png
+//                ProductImages productImage = productDao.findImageByProductName(existingProduct.getPname());
+//                String currentImageName = productImage != null ? productImage.getImagename() : "default.png";
+//                
+//                if (!"default.png".equals(currentImageName)) {
+//                    fileService.deleteImage("src/main/resources/img/" + currentImageName);
+//                }
+//
+//                // Save the new image
+//                String imageName = fileService.saveImage(image);
+//                if (productImage != null) {
+//                    productImage.setImagename(imageName);
+//                    productDao.saveProductImage(productImage);
+//                } else {
+//                    ProductImages newProductImage = new ProductImages();
+//                    newProductImage.setPname(existingProduct.getPname());
+//                    newProductImage.setImagename(imageName);
+//                    productDao.saveProductImage(newProductImage);
+//                }
+//
+//                // Update the imagename in the DTO for response
+//                productJoinImageDTO.setImagename(imageName);
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return false;
+//            }
+//        } else if (productDao.findImageByProductName(existingProduct.getPname()) != null) {
+//            ProductImages existingProductImage = productDao.findImageByProductName(existingProduct.getPname());
+//            productJoinImageDTO.setImagename(existingProductImage.getImagename());
+//        } else {
+//            productJoinImageDTO.setImagename("default.png");
+//        }
+//
+//        return isProductUpdated;
+//    }
+
+
+
     
     
     public List<ProductJoinImageDTO> getAllProductWithImage() {

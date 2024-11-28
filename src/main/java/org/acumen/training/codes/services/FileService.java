@@ -53,5 +53,18 @@ public class FileService {
             System.out.println("File does not exist: " + filePath.toString());
         }
     }
+//    public void deleteImage(String imagePath) throws IOException {
+//        Path filePath = Paths.get(imagePath);
+//        if (Files.exists(filePath)) {
+//            if (!filePath.getFileName().toString().equals("default.png")) {
+//                Files.delete(filePath);
+//                System.out.println("Deleted file: " + filePath.toString());
+//            } else {
+//                System.out.println("Skipped deletion for default image: " + filePath.toString());
+//            }
+//        } else {
+//            System.out.println("File does not exist: " + filePath.toString());
+//        }
+//    }
 
 }

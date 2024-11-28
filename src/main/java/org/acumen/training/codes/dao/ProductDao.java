@@ -316,6 +316,18 @@ public class ProductDao {
             return false;
         }
     }
+    
+    public void updateProductImage(ProductImages productImage) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.merge(productImage); // Use update instead of persist to modify the existing record
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update product image in the database.");
+        }
+    }
+
 
 
     
