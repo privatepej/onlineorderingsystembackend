@@ -13,6 +13,7 @@ import org.acumen.training.codes.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -106,13 +107,17 @@ public class ProductController {
 
 	
 	@GetMapping("/images/{filename}")
-	public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
+	public ResponseEntity<Resource> getImage(@PathVariable String filename,HttpMethod method) throws IOException {
 	    try {
 	    	Path filePath = Paths.get("src/main/resources/img").resolve(filename).normalize();
 	        Resource resource = new UrlResource(filePath.toUri());
 
 	        if (!resource.exists()) {
 	            return ResponseEntity.notFound().build();
+	        }
+	        
+	        if (method == HttpMethod.HEAD) {
+	            return ResponseEntity.ok().build();
 	        }
 
 	        return ResponseEntity.ok()
