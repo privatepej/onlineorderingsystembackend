@@ -164,9 +164,27 @@ public class ProductService {
     
     public boolean updateProductForm(ProductJoinImageDTO productJoinImageDTO, MultipartFile image) {
         Product existingProduct = productDao.selectProductById(productJoinImageDTO.getId());
-        if (existingProduct == null) {
-            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
+//        if (existingProduct == null) {
+//            throw new IllegalArgumentException("Product does not exist: " + productJoinImageDTO.getId());
+//        }
+        
+//        if (productDao.doesProductExist(productJoinImageDTO.getPname())) {
+//	        throw new IllegalArgumentException("Product with the same name already exists");
+//	    }
+//        
+     // Check if the new product name already exists (but not for the same product)
+        if (productJoinImageDTO.getPname() != null &&
+            !existingProduct.getPname().equals(productJoinImageDTO.getPname()) &&
+            productDao.doesProductExist(productJoinImageDTO.getPname())) {
+            throw new IllegalArgumentException("Product with the same name already exists: " + productJoinImageDTO.getPname());
         }
+
+      
+	    if (image != null && !image.isEmpty() && productDao.doesImageExist(image.getOriginalFilename())) {
+	        throw new IllegalArgumentException("Image name already exists: " + image.getOriginalFilename());
+	    }
+        
+        
 
         // Update fields
         if (productJoinImageDTO.getPname() != null) {

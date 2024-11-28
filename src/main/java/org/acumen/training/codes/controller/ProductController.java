@@ -136,7 +136,7 @@ public class ProductController {
 //	    }
 	
 	@PutMapping("/updates")
-	public ResponseEntity<ProductJoinImageDTO> updateProduct(
+	public ResponseEntity<?> updateProduct(
 	        @RequestParam("id") Integer id,
 	        @RequestParam("pname") String pname,
 	        @RequestParam("price") Double price,
@@ -161,7 +161,7 @@ public class ProductController {
 	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	        }
 	    } catch (IllegalArgumentException e) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
