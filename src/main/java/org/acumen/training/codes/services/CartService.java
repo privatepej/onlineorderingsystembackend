@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.acumen.training.codes.dao.ProductDao;
 import org.acumen.training.codes.dao.SalesDao;
-import org.acumen.training.codes.dao.UserDao;
 import org.acumen.training.codes.dao.UserOrdersDao;
 import org.acumen.training.codes.dto.CartDTO;
 import org.acumen.training.codes.dto.CartItemDTO;
@@ -14,7 +13,6 @@ import org.acumen.training.codes.model.Product;
 import org.acumen.training.codes.model.ProductImages;
 import org.acumen.training.codes.model.Sales;
 import org.acumen.training.codes.model.UserOrders;
-import org.acumen.training.codes.model.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,20 +24,11 @@ public class CartService {
     
     @Autowired
     private ProductDao productDao;
-
-    @Autowired
-    private UserDao userDao;
     
     @Autowired
     private UserOrdersDao userOrdersDao;
 
-    @SuppressWarnings("unlikely-arg-type")
 	public boolean addToCart(Integer userId, Integer productId, Integer quantity) {
-    	Users user = userDao.findById(userId); 
-    	 
-		 if (user == null || !"CUSTOMER".equals(user.getRole())) {
-		     throw new IllegalArgumentException("Only customers can add to cart.");
-		 }
     	    
         UserOrders cart = userOrdersDao.getPendingOrderByUserId(userId);
         if (cart == null) {
