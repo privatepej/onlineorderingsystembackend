@@ -89,7 +89,7 @@ public class Sales {
 	
 // userOrders
 	@ManyToOne
-    @JoinColumn(name = "orderid", referencedColumnName = "orderid", insertable = false, updatable = false)
+    @JoinColumn(name = "orderid", insertable = false, updatable = false)
 	public UserOrders getUserOrders() {
 		return userOrders;
 	}

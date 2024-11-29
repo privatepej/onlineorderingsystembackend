@@ -93,4 +93,20 @@ public class UserOrdersDao {
         }
     }
     
+    //CART
+    public UserOrders getPendingOrderByUserId(Integer userId) {
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<UserOrders> query = builder.createQuery(UserOrders.class);
+            Root<UserOrders> root = query.from(UserOrders.class);
+            query.select(root).where(
+                builder.and(
+                    builder.equal(root.get("userid"), userId),
+                    builder.equal(root.get("status"), "CART")
+                )
+            );
+            return session.createQuery(query).uniqueResult();
+        }
+    }
+    
 }

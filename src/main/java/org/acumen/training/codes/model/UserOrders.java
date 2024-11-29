@@ -24,6 +24,7 @@ public class UserOrders {
 	private Integer paymentid;
 	private LocalDate orderon;
 	private Double ordert;
+	private String status;
 	
 	private Users users;
 	private UsersPayments usersPayments;
@@ -72,7 +73,14 @@ public class UserOrders {
 		this.ordert = ordert;
 	}
 	
-// users
+	@Column(name = "status", length = 255)
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	// users
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "id",insertable = false, updatable = false)
 	public Users getUsers() {
