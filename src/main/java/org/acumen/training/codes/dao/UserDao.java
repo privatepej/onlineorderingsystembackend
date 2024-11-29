@@ -67,6 +67,22 @@ public class UserDao {
         }
     }
     
+    public Users findById(Integer id) {
+        Users users = new Users();
+        try (Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Users> sql = builder.createQuery(Users.class);
+            Root<Users> root = sql.from(Users.class);
+            sql.select(root).where(builder.equal(root.get("id"), id));
+            Query<Users> query = session.createQuery(sql);
+            users = query.uniqueResult();
+            return users;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
     
 
     
