@@ -133,8 +133,8 @@ public class ProductDao {
 	        try (Session session = sessionFactory.openSession()) {
 	            CriteriaBuilder builder = session.getCriteriaBuilder();
 	            CriteriaQuery<Product> sql = builder.createQuery(Product.class);
-	            Root<Product> root = sql.from(Product.class);
-	            sql.select(root).where(builder.equal(root.get("pname"), pname));
+	            Root<Product> from = sql.from(Product.class);
+	            sql.select(from).where(builder.equal(from.get("pname"), pname));
 	            Query<Product> query = session.createQuery(sql);
 	            product = query.uniqueResult();
 	            return product;
@@ -327,20 +327,16 @@ public class ProductDao {
 	}
     
     public boolean deleteProductByName(String productName) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaDelete<Product> delete = builder.createCriteriaDelete(Product.class);
-            Root<Product> root = delete.from(Product.class);
-            delete.where(builder.equal(root.get("pname"), productName));
+            Root<Product> from = delete.from(Product.class);
+            delete.where(builder.equal(from.get("pname"), productName));
             int deletedCount = session.createMutationQuery(delete).executeUpdate();
             transaction.commit();
             return deletedCount > 0;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return false;
         }
@@ -350,11 +346,11 @@ public class ProductDao {
     public boolean doesProductExist(String pname) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
-            Root<Product> root = criteriaQuery.from(Product.class);
-            criteriaQuery.select(builder.count(root));
-            criteriaQuery.where(builder.equal(root.get("pname"), pname));
-            Long count = session.createQuery(criteriaQuery).getSingleResult();
+            CriteriaQuery<Long> sql = builder.createQuery(Long.class);
+            Root<Product> from = sql.from(Product.class);
+            sql.select(builder.count(from));
+            sql.where(builder.equal(from.get("pname"), pname));
+            Long count = session.createQuery(sql).getSingleResult();
             return count > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -365,11 +361,11 @@ public class ProductDao {
     public boolean doesImageExist(String imageName) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Long> query = builder.createQuery(Long.class);
-            Root<ProductImages> root = query.from(ProductImages.class);
-            query.select(builder.count(root))
-                 .where(builder.equal(root.get("imagename"), imageName));
-            Long count = session.createQuery(query).getSingleResult();
+            CriteriaQuery<Long> sql = builder.createQuery(Long.class);
+            Root<ProductImages> from = sql.from(ProductImages.class);
+            sql.select(builder.count(from))
+                 .where(builder.equal(from.get("imagename"), imageName));
+            Long count = session.createQuery(sql).getSingleResult();
             return count > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -382,10 +378,10 @@ public class ProductDao {
     public ProductImages findImageByProductName(String pname) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<ProductImages> query = builder.createQuery(ProductImages.class);
-            Root<ProductImages> root = query.from(ProductImages.class);
-            query.select(root).where(builder.equal(root.get("pname"), pname));
-            return session.createQuery(query).uniqueResult();
+            CriteriaQuery<ProductImages> sql = builder.createQuery(ProductImages.class);
+            Root<ProductImages> from = sql.from(ProductImages.class);
+            sql.select(from).where(builder.equal(from.get("pname"), pname));
+            return session.createQuery(sql).uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null; 

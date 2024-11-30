@@ -100,36 +100,29 @@ public class CategoryDao {
 	}
     
     public boolean deleteCategoryByName(String categoryName) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaDelete<Category> delete = builder.createCriteriaDelete(Category.class);
-            Root<Category> root = delete.from(Category.class);
-            delete.where(builder.equal(root.get("cname"), categoryName));
+            Root<Category> from = delete.from(Category.class);
+            delete.where(builder.equal(from.get("cname"), categoryName));
             int deletedCount = session.createMutationQuery(delete).executeUpdate();
             transaction.commit();
             return deletedCount > 0;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return false;
         }
     }
     
     public boolean doesCategoryExist(String cname) {
-        System.out.println("Checking category existence for: " + cname);
-
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
-            Root<Category> root = criteriaQuery.from(Category.class);
-            criteriaQuery.select(builder.count(root));
-            criteriaQuery.where(builder.equal(root.get("cname"), cname));
-            Long count = session.createQuery(criteriaQuery).getSingleResult();
-            System.out.println("Category count for " + cname + ": " + count);
+            CriteriaQuery<Long> sql = builder.createQuery(Long.class);
+            Root<Category> from = sql.from(Category.class);
+            sql.select(builder.count(from));
+            sql.where(builder.equal(from.get("cname"), cname));
+            Long count = session.createQuery(sql).getSingleResult();
             return count > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,11 +131,6 @@ public class CategoryDao {
     }
     
    
-
-
-	
-
-    // Get All Categories
     public List<Category> getAllCategories() {
 		List<Category> records = new ArrayList<>();
         try (Session session = sessionFactory.openSession()) {

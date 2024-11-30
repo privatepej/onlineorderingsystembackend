@@ -21,29 +21,32 @@ public class SalesDao {
     private SessionFactory sessionFactory;
     
     public boolean createSales(Sales sales) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            try {
-                session.persist(sales);
-                tx.commit();
-                return true;
-            } catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-                e.printStackTrace();
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    	Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			sess.persist(sales); 
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
     }
 
     public boolean updateSalesQuantity(Integer salesId, Integer newQuantity) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             Sales sales = session.get(Sales.class, salesId);
             if (sales != null) {
                 sales.setQty(newQuantity);
@@ -54,18 +57,14 @@ public class SalesDao {
                 return false;
             }
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return false;
         }
     }
     
     public boolean deleteSalesItem(Integer salesId) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             Sales sales = session.get(Sales.class, salesId);
             if (sales != null) {
                 session.remove(sales);
@@ -75,29 +74,22 @@ public class SalesDao {
                 return false; 
             }
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return false;
         }
     }
     
     public boolean deleteAllSalesItemsByOrderId(Integer orderId) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaDelete<Sales> delete = builder.createCriteriaDelete(Sales.class);
-            Root<Sales> root = delete.from(Sales.class);
-            delete.where(builder.equal(root.get("orderid"), orderId));
+            Root<Sales> from = delete.from(Sales.class);
+            delete.where(builder.equal(from.get("orderid"), orderId));
             int deletedCount = session.createMutationQuery(delete).executeUpdate();
             transaction.commit();
             return deletedCount > 0;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return false;
         }
@@ -107,61 +99,84 @@ public class SalesDao {
     public Sales getCartItem(Integer orderId, Integer productId) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Sales> query = builder.createQuery(Sales.class);
-            Root<Sales> root = query.from(Sales.class);
-            query.select(root).where(
+            CriteriaQuery<Sales> sql = builder.createQuery(Sales.class);
+            Root<Sales> from = sql.from(Sales.class);
+            sql.select(from).where(
                 builder.and(
-                    builder.equal(root.get("orderid"), orderId),
-                    builder.equal(root.get("itemno"), productId)
+                    builder.equal(from.get("orderid"), orderId),
+                    builder.equal(from.get("itemno"), productId)
                 )
             );
-            return session.createQuery(query).uniqueResult();
+            return session.createQuery(sql).uniqueResult();
         }
     }
 
     public List<Sales> getCartItems(Integer orderId) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Sales> query = builder.createQuery(Sales.class);
-            Root<Sales> root = query.from(Sales.class);
-            query.select(root).where(builder.equal(root.get("orderid"), orderId));
-            return session.createQuery(query).list();
+            CriteriaQuery<Sales> sql = builder.createQuery(Sales.class);
+            Root<Sales> from = sql.from(Sales.class);
+            sql.select(from).where(builder.equal(from.get("orderid"), orderId));
+            return session.createQuery(sql).list();
         }
     }
 
     public boolean saveCartItem(Sales sales) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.persist(sales);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    	Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction(); 
+		try {
+			sess.persist(sales); 
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
     }
 
     public boolean updateCartItem(Sales sales) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-            session.merge(sales);
-            tx.commit();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    	Session sess = sessionFactory.openSession();
+		Transaction tx = sess.beginTransaction();
+		try {
+			sess.merge(sales);
+			tx.commit();
+			return true;
+		} catch (Exception e) {
+			try {
+				tx.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				sess.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
     }
 
     public boolean clearCart(Integer orderId) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        	Transaction transaction = session.beginTransaction();
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<Sales> query = builder.createCriteriaDelete(Sales.class);
-            Root<Sales> root = query.from(Sales.class);
-            query.where(builder.equal(root.get("orderid"), orderId));
-            int deletedCount = session.createMutationQuery(query).executeUpdate();
+            CriteriaDelete<Sales> sql = builder.createCriteriaDelete(Sales.class);
+            Root<Sales> from = sql.from(Sales.class);
+            sql.where(builder.equal(from.get("orderid"), orderId));
+            int deletedCount = session.createMutationQuery(sql).executeUpdate();
             transaction.commit();
             return deletedCount > 0;
         } catch (Exception e) {
@@ -173,15 +188,14 @@ public class SalesDao {
     public boolean removeCartItem(Integer orderId, Integer productId) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<Sales> query = builder.createCriteriaDelete(Sales.class);
-            Root<Sales> root = query.from(Sales.class);
-            query.where(
-            		builder.equal(root.get("orderid"), orderId),
-            		builder.equal(root.get("itemno"), productId)
+            CriteriaDelete<Sales> sql = builder.createCriteriaDelete(Sales.class);
+            Root<Sales> from = sql.from(Sales.class);
+            sql.where(
+            		builder.equal(from.get("orderid"), orderId),
+            		builder.equal(from.get("itemno"), productId)
             );
-            int deletedCount = session.createMutationQuery(query).executeUpdate();
+            int deletedCount = session.createMutationQuery(sql).executeUpdate();
             transaction.commit();
             return deletedCount > 0;
         } catch (Exception e) {

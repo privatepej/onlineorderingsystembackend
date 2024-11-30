@@ -92,7 +92,7 @@ public class CartService {
     public boolean removeCartItem(Integer userId, Integer productId) {
         UserOrders cart = userOrdersDao.getPendingOrderByUserId(userId);
         if (cart == null) {
-            return false; // No cart to remove items from
+            return false; 
         }
 
         return salesDao.removeCartItem(cart.getOrderid(), productId);

@@ -7,7 +7,6 @@ public class CartDTO {
     private List<CartItemDTO> cartItems;
     private Double cartTotal;
 
-    // Getters and Setters
     public Integer getUserId() {
         return userId;
     }

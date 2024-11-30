@@ -56,8 +56,8 @@ public class UserDao {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<Users> sql = builder.createQuery(Users.class);
-            Root<Users> root = sql.from(Users.class);
-            sql.select(root).where(builder.equal(root.get("email"), email));
+            Root<Users> from = sql.from(Users.class);
+            sql.select(from).where(builder.equal(from.get("email"), email));
             Query<Users> query = session.createQuery(sql);
             users = query.uniqueResult();
             return users;
@@ -72,8 +72,8 @@ public class UserDao {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<Users> sql = builder.createQuery(Users.class);
-            Root<Users> root = sql.from(Users.class);
-            sql.select(root).where(builder.equal(root.get("id"), id));
+            Root<Users> from = sql.from(Users.class);
+            sql.select(from).where(builder.equal(from.get("id"), id));
             Query<Users> query = session.createQuery(sql);
             users = query.uniqueResult();
             return users;

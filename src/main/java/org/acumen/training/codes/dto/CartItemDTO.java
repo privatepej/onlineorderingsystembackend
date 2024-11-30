@@ -8,7 +8,6 @@ public class CartItemDTO {
     private Double totalPrice;
     private String imagename;
 
-    // Getters and Setters
     public Integer getProductId() {
         return productId;
     }
