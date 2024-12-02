@@ -57,12 +57,10 @@ public class CartService {
 
     public CartDTO viewCart(Integer userId) {
         UserOrders cart = userOrdersDao.getPendingOrderByUserId(userId);
+        
         if (cart == null) {
             return null;
         }
-
-        CartDTO cartDTO = new CartDTO();
-        cartDTO.setUserId(userId);
 
         List<CartItemDTO> cartItems = new ArrayList<>();
         double cartTotal = 0.0;
@@ -83,7 +81,9 @@ public class CartService {
 
             cartTotal += item.getTotalPrice();
         }
-
+        
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setUserId(userId);
         cartDTO.setCartItems(cartItems);
         cartDTO.setCartTotal(cartTotal);
         return cartDTO;
